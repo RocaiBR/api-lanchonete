@@ -1,0 +1,562 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-10-28T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.0.0",
+  "resources": [
+    {
+      "_id": "wrk_lanchonete",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "API Lanchonete",
+      "description": "",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_lanchonete_base",
+      "_type": "environment",
+      "parentId": "wrk_lanchonete",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "token_cliente": "",
+        "refresh_token_cliente": "",
+        "refresh_token_usado": "",
+        "token_gerente": "",
+        "token_motoboy": "",
+        "token_outro_cliente": "",
+        "pedido_id": "1"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "token_cliente",
+          "refresh_token_cliente",
+          "refresh_token_usado",
+          "token_gerente",
+          "token_motoboy",
+          "token_outro_cliente",
+          "pedido_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_status",
+      "_type": "request",
+      "parentId": "wrk_lanchonete",
+      "name": "Status da API",
+      "method": "GET",
+      "url": "{{ _.base_url }}/",
+      "body": {},
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -600
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_lanchonete",
+      "name": "1. Autenticação",
+      "description": "",
+      "environment": {},
+      "metaSortKey": -500
+    },
+    {
+      "_id": "req_login_cliente",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login do cliente",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"cliente@lanchonete.com\",\n  \"senha\": \"cliente123\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "afterResponseScript": "const corpo = insomnia.response.json();\nif (corpo.accessToken) {\n  insomnia.baseEnvironment.set(\"token_cliente\", corpo.accessToken);\n  insomnia.baseEnvironment.set(\"refresh_token_cliente\", corpo.refreshToken);\n}\n",
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_login_gerente",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login do gerente",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"gerente@lanchonete.com\",\n  \"senha\": \"gerente123\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "afterResponseScript": "const corpo = insomnia.response.json();\nif (corpo.accessToken) {\n  insomnia.baseEnvironment.set(\"token_gerente\", corpo.accessToken);\n}\n",
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_login_motoboy",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login do motoboy",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"motoboy@lanchonete.com\",\n  \"senha\": \"motoboy123\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "afterResponseScript": "const corpo = insomnia.response.json();\nif (corpo.accessToken) {\n  insomnia.baseEnvironment.set(\"token_motoboy\", corpo.accessToken);\n}\n",
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_login_errado",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login com senha errada -> 401",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"cliente@lanchonete.com\",\n  \"senha\": \"errada\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_cadastro",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Cadastro (sempre vira CLIENTE) -> 201",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/cadastro",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Maria Souza\",\n  \"email\": \"maria@email.com\",\n  \"senha\": \"maria123\",\n  \"perfil\": \"GERENTE\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_login_outro_cliente",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login da Maria (outro cliente)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"maria@email.com\",\n  \"senha\": \"maria123\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "afterResponseScript": "const corpo = insomnia.response.json();\nif (corpo.accessToken) {\n  insomnia.baseEnvironment.set(\"token_outro_cliente\", corpo.accessToken);\n}\n",
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_me",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Quem sou eu",
+      "method": "GET",
+      "url": "{{ _.base_url }}/auth/me",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 700
+    },
+    {
+      "_id": "req_refresh",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Renovar o acesso (refresh)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/refresh",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refreshToken\": \"{{ _.refresh_token_cliente }}\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "afterResponseScript": "const corpo = insomnia.response.json();\nif (corpo.accessToken) {\n  insomnia.baseEnvironment.set(\"refresh_token_usado\", insomnia.baseEnvironment.get(\"refresh_token_cliente\"));\n  insomnia.baseEnvironment.set(\"token_cliente\", corpo.accessToken);\n  insomnia.baseEnvironment.set(\"refresh_token_cliente\", corpo.refreshToken);\n}\n",
+      "metaSortKey": 800
+    },
+    {
+      "_id": "req_refresh_reutilizado",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Refresh token já usado -> 401",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/refresh",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refreshToken\": \"{{ _.refresh_token_usado }}\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "metaSortKey": 900
+    },
+    {
+      "_id": "req_logout",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Logout -> 204",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/logout",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refreshToken\": \"{{ _.refresh_token_cliente }}\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": {},
+      "metaSortKey": 1000
+    },
+    {
+      "_id": "fld_cardapio",
+      "_type": "request_group",
+      "parentId": "wrk_lanchonete",
+      "name": "2. Cardápio",
+      "description": "",
+      "environment": {},
+      "metaSortKey": -400
+    },
+    {
+      "_id": "req_cardapio_sem_token",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Sem token -> 401",
+      "method": "GET",
+      "url": "{{ _.base_url }}/cardapio",
+      "body": {},
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_cardapio_listar",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Cliente vê o cardápio",
+      "method": "GET",
+      "url": "{{ _.base_url }}/cardapio",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_cardapio_detalhar",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Cliente vê um item",
+      "method": "GET",
+      "url": "{{ _.base_url }}/cardapio/1",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_cardapio_cliente_cria",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Cliente tentando criar item -> 403",
+      "method": "POST",
+      "url": "{{ _.base_url }}/cardapio",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Item hackeado\",\n  \"preco\": 1\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_cardapio_criar",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Gerente cria item -> 201",
+      "method": "POST",
+      "url": "{{ _.base_url }}/cardapio",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Milkshake\",\n  \"descricao\": \"Chocolate 400 ml\",\n  \"preco\": 16.9\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": { "type": "bearer", "token": "{{ _.token_gerente }}", "prefix": "" },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_cardapio_alterar",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Gerente altera o preço",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/cardapio/1",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"preco\": 23.9\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": { "type": "bearer", "token": "{{ _.token_gerente }}", "prefix": "" },
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_cardapio_remover",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Gerente deixa item indisponível -> 204",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/cardapio/5",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_gerente }}", "prefix": "" },
+      "metaSortKey": 700
+    },
+    {
+      "_id": "req_cardapio_reativar",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Gerente deixa item disponível de novo",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/cardapio/5",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"disponivel\": true\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": { "type": "bearer", "token": "{{ _.token_gerente }}", "prefix": "" },
+      "metaSortKey": 800
+    },
+    {
+      "_id": "req_cardapio_todos",
+      "_type": "request",
+      "parentId": "fld_cardapio",
+      "name": "Gerente vê todos os itens, inclusive indisponíveis",
+      "method": "GET",
+      "url": "{{ _.base_url }}/cardapio",
+      "body": {},
+      "parameters": [{ "name": "todos", "value": "true" }],
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_gerente }}", "prefix": "" },
+      "metaSortKey": 900
+    },
+    {
+      "_id": "fld_carrinho",
+      "_type": "request_group",
+      "parentId": "wrk_lanchonete",
+      "name": "3. Carrinho (cliente)",
+      "description": "",
+      "environment": {},
+      "metaSortKey": -300
+    },
+    {
+      "_id": "req_carrinho_ver",
+      "_type": "request",
+      "parentId": "fld_carrinho",
+      "name": "Ver carrinho",
+      "method": "GET",
+      "url": "{{ _.base_url }}/carrinho",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_carrinho_adicionar",
+      "_type": "request",
+      "parentId": "fld_carrinho",
+      "name": "Adicionar item -> 201",
+      "method": "POST",
+      "url": "{{ _.base_url }}/carrinho/itens",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"itemId\": 1,\n  \"quantidade\": 2\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_carrinho_adicionar_outro",
+      "_type": "request",
+      "parentId": "fld_carrinho",
+      "name": "Adicionar outro item -> 201",
+      "method": "POST",
+      "url": "{{ _.base_url }}/carrinho/itens",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"itemId\": 4\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_carrinho_alterar",
+      "_type": "request",
+      "parentId": "fld_carrinho",
+      "name": "Alterar quantidade",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/carrinho/itens/4",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"quantidade\": 3\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_carrinho_remover",
+      "_type": "request",
+      "parentId": "fld_carrinho",
+      "name": "Remover item",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/carrinho/itens/4",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_carrinho_esvaziar",
+      "_type": "request",
+      "parentId": "fld_carrinho",
+      "name": "Esvaziar carrinho -> 204",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/carrinho",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_carrinho_motoboy",
+      "_type": "request",
+      "parentId": "fld_carrinho",
+      "name": "Motoboy no carrinho -> 403",
+      "method": "GET",
+      "url": "{{ _.base_url }}/carrinho",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_motoboy }}", "prefix": "" },
+      "metaSortKey": 700
+    },
+    {
+      "_id": "fld_pedidos",
+      "_type": "request_group",
+      "parentId": "wrk_lanchonete",
+      "name": "4. Pedidos",
+      "description": "",
+      "environment": {},
+      "metaSortKey": -200
+    },
+    {
+      "_id": "req_pedido_finalizar",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "Finalizar compra -> 201 (409 se o carrinho estiver vazio)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"enderecoEntrega\": \"Rua das Flores, 123 - Centro\",\n  \"formaPagamento\": \"PIX\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "afterResponseScript": "const corpo = insomnia.response.json();\nif (corpo.id) {\n  insomnia.baseEnvironment.set(\"pedido_id\", String(corpo.id));\n}\n",
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_pedido_listar_cliente",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "Cliente lista só os próprios pedidos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_pedido_detalhe_dono",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "Detalhe do pedido (dono)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_id }}",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_cliente }}", "prefix": "" },
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_pedido_outro_cliente",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "Outro cliente vendo o pedido -> 403",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_id }}",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_outro_cliente }}", "prefix": "" },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_pedido_motoboy",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "Motoboy olhando pedido que não pegou -> 403",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_id }}",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_motoboy }}", "prefix": "" },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_pedido_detalhe_gerente",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "Gerente vê qualquer pedido",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_id }}",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_gerente }}", "prefix": "" },
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_pedido_listar_gerente",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "Gerente lista todos os pedidos PAGO",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos",
+      "body": {},
+      "parameters": [{ "name": "status", "value": "PAGO" }],
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_gerente }}", "prefix": "" },
+      "metaSortKey": 700
+    },
+    {
+      "_id": "req_pedido_listar_motoboy",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "Motoboy listando pedidos -> 403",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos",
+      "body": {},
+      "headers": [],
+      "authentication": { "type": "bearer", "token": "{{ _.token_motoboy }}", "prefix": "" },
+      "metaSortKey": 800
+    }
+  ]
+}

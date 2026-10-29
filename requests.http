@@ -1,0 +1,146 @@
+### Requisições prontas para a extensão "REST Client" do VS Code.
+### Clique em "Send Request" acima de cada bloco.
+### Os tokens do login são reaproveitados automaticamente pelas variáveis @name.
+
+@base = http://localhost:3000
+
+### ============ AUTENTICAÇÃO ============
+
+### Cadastro (sempre vira CLIENTE, mesmo mandando "perfil")
+POST {{base}}/auth/cadastro
+Content-Type: application/json
+
+{
+  "nome": "Maria Souza",
+  "email": "maria@email.com",
+  "senha": "maria123",
+  "perfil": "GERENTE"
+}
+
+### Login do cliente
+# @name loginCliente
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "cliente@lanchonete.com", "senha": "cliente123" }
+
+### Login do gerente
+# @name loginGerente
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "gerente@lanchonete.com", "senha": "gerente123" }
+
+### Login do motoboy
+# @name loginMotoboy
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "motoboy@lanchonete.com", "senha": "motoboy123" }
+
+### Login com senha errada -> 401
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "cliente@lanchonete.com", "senha": "errada" }
+
+### Quem sou eu
+GET {{base}}/auth/me
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+
+### Renovar o acesso (o refresh token usado deixa de valer)
+POST {{base}}/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "{{loginCliente.response.body.refreshToken}}" }
+
+### ============ CARDÁPIO ============
+
+### Sem token -> 401
+GET {{base}}/cardapio
+
+### Cliente vê o cardápio
+GET {{base}}/cardapio
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+
+### Cliente tentando criar item -> 403
+POST {{base}}/cardapio
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+Content-Type: application/json
+
+{ "nome": "Item hackeado", "preco": 1 }
+
+### Gerente cria item -> 201
+POST {{base}}/cardapio
+Authorization: Bearer {{loginGerente.response.body.accessToken}}
+Content-Type: application/json
+
+{ "nome": "Milkshake", "descricao": "Chocolate 400 ml", "preco": 16.9 }
+
+### Gerente altera o preço
+PATCH {{base}}/cardapio/1
+Authorization: Bearer {{loginGerente.response.body.accessToken}}
+Content-Type: application/json
+
+{ "preco": 23.9 }
+
+### Gerente vê todos os itens, inclusive indisponíveis
+GET {{base}}/cardapio?todos=true
+Authorization: Bearer {{loginGerente.response.body.accessToken}}
+
+### ============ CARRINHO (CLIENTE) ============
+
+### Ver carrinho
+GET {{base}}/carrinho
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+
+### Adicionar item
+POST {{base}}/carrinho/itens
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+Content-Type: application/json
+
+{ "itemId": 1, "quantidade": 2 }
+
+### Adicionar outro item
+POST {{base}}/carrinho/itens
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+Content-Type: application/json
+
+{ "itemId": 4 }
+
+### Alterar quantidade
+PATCH {{base}}/carrinho/itens/4
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+Content-Type: application/json
+
+{ "quantidade": 3 }
+
+### Motoboy no carrinho -> 403
+GET {{base}}/carrinho
+Authorization: Bearer {{loginMotoboy.response.body.accessToken}}
+
+### ============ PEDIDOS ============
+
+### Finalizar compra -> pedido PAGO (201). Com carrinho vazio -> 409
+# @name compra
+POST {{base}}/pedidos
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+Content-Type: application/json
+
+{ "enderecoEntrega": "Rua das Flores, 123 - Centro", "formaPagamento": "PIX" }
+
+### Cliente lista só os próprios pedidos
+GET {{base}}/pedidos
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+
+### Detalhe do pedido (dono)
+GET {{base}}/pedidos/{{compra.response.body.id}}
+Authorization: Bearer {{loginCliente.response.body.accessToken}}
+
+### Motoboy olhando pedido que não pegou -> 403
+GET {{base}}/pedidos/{{compra.response.body.id}}
+Authorization: Bearer {{loginMotoboy.response.body.accessToken}}
+
+### Gerente lista todos os pedidos PAGO
+GET {{base}}/pedidos?status=PAGO
+Authorization: Bearer {{loginGerente.response.body.accessToken}}
